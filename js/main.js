@@ -1,5 +1,5 @@
- threshold = 128;
-  DEBUG = true;
+ threshold = 64;
+  //DEBUG = true;
 
   var video = document.createElement('video');
   video.width = 640;
@@ -51,7 +51,7 @@ getUserMedia({'video': true},
     debugCanvas.id = 'debugCanvas';
     debugCanvas.width = 320;
     debugCanvas.height = 240;
-    document.body.appendChild(debugCanvas);
+    //document.body.appendChild(debugCanvas);
 
     var videoCanvas = document.createElement('canvas');
     videoCanvas.width = video.width;
