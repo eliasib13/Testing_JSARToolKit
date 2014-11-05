@@ -1,6 +1,8 @@
  threshold = 64;
   //DEBUG = true;
 
+  var recognition, recognizing, recon_allow;
+
   var video = document.createElement('video');
   video.width = 640;
   video.height = 480;
@@ -74,6 +76,7 @@ function rasterizar() {
 var renderer, glCanvas, s, scene, light, camera, videoTex,
     plane, videoCam, videoScene, times, markers, lastTime,
     loader, monster;
+var movement = 0;
 
 function cargar_escena(){
   var renderer = new THREE.WebGLRenderer();
@@ -176,14 +179,7 @@ function cargar_escena(){
           monster.scale.x = monster.scale.y = monster.scale.z = 0.05;
           monster.updateMatrix();
         });
-        /*
-        var sphere = new THREE.Mesh(
-          new THREE.SphereGeometry(50,16,16),
-          new THREE.MeshLambertMaterial({color: 0xFF0000})
-        );
-        sphere.position.z = -50;
-        //sphere.doubleSided = true;
-        */
+
         m.model.matrixAutoUpdate = false;
         m.model.add(monster);
         scene.add(m.model);
@@ -199,13 +195,45 @@ function cargar_escena(){
   }, 15);
 }
 
+
 window.onload = function() {
+
+  if (!('webkitSpeechRecognition') in window){
+    recon_allow = false;
+    window.alert("No se puede realizar el reconocimiento por voz");
+  }
+  else {
+    recon_allow = true;
+    recognition = new webkitSpeechRecognition();
+    recognition.continuous = true;
+
+    recognition.onstart = function(event) {
+      recognizing = true;
+    }
+
+    recognition.onresult = function(event) {
+      for (var i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          if (event.results[i][0].transcript.toLowerCase() == "derecha".toLowerCase())
+            monster.position.x = 150;
+          else if (event.results[i][0].transcript.toLowerCase() == "izquierda".toLowerCase())
+            monster.position.x = -150;
+        }
+      }
+    }
+
+    recognition.onend = function(event) {
+      recognizing = false;
+    }
+  }
   
   cargar_canvas();
 
   rasterizar();
 
   cargar_escena();
+
+  window.alert("lolollo");
 }
 
 THREE.Matrix4.prototype.setFromArray = function(m) {
