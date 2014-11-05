@@ -233,8 +233,10 @@ window.onload = function() {
 
   cargar_escena();
 
-  window.alert("lolollo");
+  recognition.start();
 }
+
+window.on
 
 THREE.Matrix4.prototype.setFromArray = function(m) {
   return this.set(
