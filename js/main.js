@@ -237,6 +237,7 @@ window.onload = function() {
 
   cargar_escena();
 
+  recognition.lang = "es-ES";
   recognition.start();
 }
 
