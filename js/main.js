@@ -214,10 +214,14 @@ window.onload = function() {
     recognition.onresult = function(event) {
       for (var i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
-          if (event.results[i][0].transcript.toLowerCase() == "derecha".toLowerCase())
+          if (event.results[i][0].transcript.toLowerCase() == "derecha".toLowerCase()){
+            window.alert("derecha");
             monster.position.x = 150;
-          else if (event.results[i][0].transcript.toLowerCase() == "izquierda".toLowerCase())
+          }
+          else if (event.results[i][0].transcript.toLowerCase() == "izquierda".toLowerCase()){
+            widow.alert("izquierda");
             monster.position.x = -150;
+          }
         }
       }
     }
