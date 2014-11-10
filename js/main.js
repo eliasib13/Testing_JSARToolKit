@@ -79,49 +79,49 @@ var renderer, glCanvas, s, scene, light, camera, videoTex,
 var movement = 0;
 
 function cargar_escena(){
-  var renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer();
   renderer.setSize(960, 720);
 
-  var glCanvas = renderer.domElement;
-  var s = glCanvas.style;
+  glCanvas = renderer.domElement;
+  s = glCanvas.style;
   document.body.appendChild(glCanvas);
 
-  var scene = new THREE.Scene();
-  var light = new THREE.PointLight(0xffffff);
+  scene = new THREE.Scene();
+  light = new THREE.PointLight(0xffffff);
   light.position.set(400, 500, 100);
   scene.add(light);
-  var light = new THREE.PointLight(0xffffff);
+  light = new THREE.PointLight(0xffffff);
   light.position.set(-400, -500, -100);
   scene.add(light);
-  var light = new THREE.PointLight(0xffffff);
+  light = new THREE.PointLight(0xffffff);
   light.position.set(0, 0, 0);
   scene.add(light);
 
   // Create a camera and a marker root object for your Three.js scene.
-  var camera = new THREE.Camera();
+  camera = new THREE.Camera();
   scene.add(camera);
   
   // Next we need to make the Three.js camera use the FLARParam matrix.
 //  param.copyCameraMatrix(tmp, 10, 10000);
   camera.projectionMatrix.setFromArray(tmp);
 
-  var videoTex = new THREE.Texture(videoCanvas);
+  videoTex = new THREE.Texture(videoCanvas);
 
   // Create scene and quad for the video.
-  var plane = new THREE.Mesh(
+  plane = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2, 0),
     new THREE.MeshBasicMaterial({map: videoTex})
   );
   plane.material.depthTest = false;
   plane.material.depthWrite = false;
-  var videoCam = new THREE.Camera();
-  var videoScene = new THREE.Scene();
+  videoCam = new THREE.Camera();
+  videoScene = new THREE.Scene();
   videoScene.add(plane);
   videoScene.add(videoCam);
 
-  var times = [];
-  var markers = {};
-  var lastTime = 0;
+  times = [];
+  markers = {};
+  lastTime = 0;
 
   setInterval(function(){
     if (video.ended) video.play();
@@ -195,9 +195,15 @@ function cargar_escena(){
   }, 15);
 }
 
-
+var captando;
 window.onload = function() {
+  
+  cargar_canvas();
 
+  rasterizar();
+
+  cargar_escena();
+    
   if (!('webkitSpeechRecognition') in window){
     recon_allow = false;
     window.alert("No se puede realizar el reconocimiento por voz");
@@ -214,14 +220,17 @@ window.onload = function() {
     recognition.onresult = function(event) {
       for (var i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
-          if (event.results[i][0].transcript.toLowerCase() == "derecha".toLowerCase()){
-            window.alert("derecha");
-            monster.position.x = 150;
+            captando = event.results[i][0].transcript.toLowerCase().replace(/\s/g, '');
+          if (captando == "derecha".toLowerCase()){
+            camera.position.x = -125;
           }
-          else if (event.results[i][0].transcript.toLowerCase() == "izquierda".toLowerCase()){
-            widow.alert("izquierda");
-            monster.position.x = -150;
+          else if (captando == "izquierda".toLowerCase()){
+            camera.position.x = +125;
           }
+          else if (captando == "centro".toLowerCase()){
+              camera.position.x = 0;
+          }
+          renderer.render(scene, camera);
         }
       }
     }
@@ -229,19 +238,11 @@ window.onload = function() {
     recognition.onend = function(event) {
       recognizing = false;
     }
+    
+    recognition.lang = "es-ES";
+    recognition.start();
   }
-  
-  cargar_canvas();
-
-  rasterizar();
-
-  cargar_escena();
-
-  recognition.lang = "es-ES";
-  recognition.start();
 }
-
-window.on
 
 THREE.Matrix4.prototype.setFromArray = function(m) {
   return this.set(
