@@ -225,12 +225,13 @@ window.onload = function() {
           if (captando == "derecha".toLowerCase()){
               console.log("derecha");
             camera.translateX(-125);
+            renderer.render(scene, camera);
           }
           else if (captando == "izquierda".toLowerCase()){
               console.log("izquierda");
             camera.translateX(125);
+            renderer.render(scene, camera);
           }
-          renderer.render(scene, camera);
         }
       }
     }
