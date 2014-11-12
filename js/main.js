@@ -230,10 +230,6 @@ window.onload = function() {
               console.log("izquierda");
             camera.translateX(125);
           }
-          else if (captando == "centro".toLowerCase()){
-              console.log("centro");
-            camera.translateX(0);
-          }
           renderer.render(scene, camera);
         }
       }
