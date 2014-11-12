@@ -195,7 +195,7 @@ function cargar_escena(){
   }, 15);
 }
 
-var captando, tween, position, target;
+var captando;
 window.onload = function() {
   
   cargar_canvas();
@@ -203,9 +203,6 @@ window.onload = function() {
   rasterizar();
 
   cargar_escena();
-    
-  position = { x: camera.position.x, y: camera.position.y, z: camera.position.z};
-  target = { x: 0, y: camera.position.y, z: camera.position.z};
     
   if (!('webkitSpeechRecognition') in window){
     recon_allow = false;
@@ -215,17 +212,9 @@ window.onload = function() {
     recon_allow = true;
     recognition = new webkitSpeechRecognition();
     recognition.continuous = true;
-      
-    tween = new TWEEN.Tween(position).to(target, 2000);
-    tween.onUpdate(function() {
-        camera.position.x = position.x;
-        camera.position.y = position.y;
-        camera.position.z = position.z;
-    });
 
     recognition.onstart = function(event) {
       recognizing = true;
-      tween.start();
     }
 
     recognition.onresult = function(event) {
@@ -233,29 +222,21 @@ window.onload = function() {
         if (event.results[i].isFinal) {
             captando = event.results[i][0].transcript.toLowerCase().replace(/\s/g, '');
           if (captando == "derecha".toLowerCase()){
-            console.log("derecha");
-            target.x = -125;
-            TWEEN.update();
+            camera.position.x = -125;
           }
           else if (captando == "izquierda".toLowerCase()){
-            console.log("izquierda");
-            target.x = +125;
-            TWEEN.update();
+            camera.position.x = +125;
           }
           else if (captando == "centro".toLowerCase()){
-            console.log("centro");
-            target.x = 0;
-            TWEEN.update();
+              camera.position.x = 0;
           }
-          //renderer.render(scene, camera);
-
+          renderer.render(scene, camera);
         }
       }
     }
 
     recognition.onend = function(event) {
       recognizing = false;
-      tween.stop();
     }
     
     recognition.lang = "es-ES";
