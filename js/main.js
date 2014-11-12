@@ -123,6 +123,7 @@ function cargar_escena(){
   markers = {};
   lastTime = 0;
 
+
   setInterval(function(){
     if (video.ended) video.play();
     if (video.paused) return;
@@ -222,13 +223,16 @@ window.onload = function() {
         if (event.results[i].isFinal) {
             captando = event.results[i][0].transcript.toLowerCase().replace(/\s/g, '');
           if (captando == "derecha".toLowerCase()){
-            camera.position.x = -125;
+              console.log("derecha");
+            camera.translateX(-125);
           }
           else if (captando == "izquierda".toLowerCase()){
-            camera.position.x = +125;
+              console.log("izquierda");
+            camera.translateX(125);
           }
           else if (captando == "centro".toLowerCase()){
-              camera.position.x = 0;
+              console.log("centro");
+            camera.translateX(0);
           }
           renderer.render(scene, camera);
         }
