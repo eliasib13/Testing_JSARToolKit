@@ -42,6 +42,7 @@ getUserMedia({'video': true},
 );
 
 var canvas,videoCanvas,ctx;
+var mov = 0;
 
 function cargar_canvas() {
     canvas = document.createElement('canvas');
@@ -74,11 +75,9 @@ function rasterizar() {
 }
 
 var renderer, glCanvas, s, scene, light, camera, videoTex,
-    plane, videoCam, videoScene, times, markers, lastTime,
-    loader, monster;
-var movement = 0;
+    plane, videoCam, videoScene;
 
-function cargar_escena(){
+function initialize(){
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(960, 720);
 
@@ -102,7 +101,7 @@ function cargar_escena(){
   scene.add(camera);
   
   // Next we need to make the Three.js camera use the FLARParam matrix.
-//  param.copyCameraMatrix(tmp, 10, 10000);
+  //  param.copyCameraMatrix(tmp, 10, 10000);
   camera.projectionMatrix.setFromArray(tmp);
 
   videoTex = new THREE.Texture(videoCanvas);
@@ -118,11 +117,85 @@ function cargar_escena(){
   videoScene = new THREE.Scene();
   videoScene.add(plane);
   videoScene.add(videoCam);
+    
+    
+  if (!('webkitSpeechRecognition') in window){
+    recon_allow = false;
+    window.alert("No se puede realizar el reconocimiento por voz");
+  }
+  else
+    recon_allow = true;
+    
+}
+
+var times, markers, lastTime,
+    loader, monster, m;
+var movement = 0;
+var izquierda = false, derecha = false;
+
+function cargar_escena(){
+  initialize();
 
   times = [];
   markers = {};
   lastTime = 0;
 
+  if (recon_allow){
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.lang = "es-ES";
+
+        recognition.onstart = function(event) {
+          recognizing = true;
+        }
+
+        recognition.onend = function(event) {
+          recognizing = false;
+        }
+        
+        recognition.onresult = function(event) {
+            for (var i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    captando = event.results[i][0].transcript.toLowerCase().replace(/\s/g, '');
+                    if (captando == "derecha".toLowerCase()){
+                        window.alert("derecha");
+                        mov = 90;  
+                        derecha = true;
+                        if (izquierda) {
+                            mov += 90;
+                            recargar_modelo();
+                            izquierda = false;
+                            mov -= 90;
+                        }
+                        else {
+                            recargar_modelo();
+                            izquierda = false;
+                        }
+                    }
+                    else if (captando == "izquierda".toLowerCase()){
+                        window.alert("izquierda");
+                        mov = -90;
+                        izquierda = true;
+                        if (derecha) {
+                            mov -= 90;
+                            recargar_modelo();
+                            derecha = false;
+                            mov += 90;
+                        }
+                        else {
+                            recargar_modelo();
+                            derecha = false;
+                        }
+
+                    }
+                }
+            }
+        }  
+        
+        if (!recognizing)
+          recognition.start();
+   }
+      
 
   setInterval(function(){
     if (video.ended) video.play();
@@ -169,7 +242,7 @@ function cargar_escena(){
       r.age++;
     }
     for (var i in markers) {
-      var m = markers[i];
+      m = markers[i];
       if (!m.model) {
         m.model = new THREE.Object3D();
         loader = new THREE.ColladaLoader();
@@ -178,9 +251,13 @@ function cargar_escena(){
           monster = collada.scene;
 
           monster.scale.x = monster.scale.y = monster.scale.z = 0.05;
+          
+            if(derecha || izquierda)
+                monster.translateX(mov);
+                
           monster.updateMatrix();
         });
-
+        
         m.model.matrixAutoUpdate = false;
         m.model.add(monster);
         scene.add(m.model);
@@ -189,11 +266,30 @@ function cargar_escena(){
       m.model.matrix.setFromArray(tmp);
       m.model.matrixWorldNeedsUpdate = true;
     }
+
     renderer.autoClear = false;
     renderer.clear();
     renderer.render(videoScene, videoCam);
     renderer.render(scene, camera);
   }, 15);
+}
+
+function recargar_modelo() {
+    if (m.model) {
+        scene.remove(m.model);
+        renderer.render(scene,camera);
+        m.model = new THREE.Object3D();
+        m.model.matrixAutoUpdate = false;
+        monster.translateX(mov);
+        monster.updateMatrix();
+        m.model.add(monster);
+        scene.add(m.model);
+        copyMatrix(m.transform, tmp);
+        m.model.matrix.setFromArray(tmp);
+        m.model.matrixWorldNeedsUpdate = true;
+        renderer.clear();
+        renderer.render(scene, camera);
+    }
 }
 
 var captando;
@@ -205,44 +301,6 @@ window.onload = function() {
 
   cargar_escena();
     
-  if (!('webkitSpeechRecognition') in window){
-    recon_allow = false;
-    window.alert("No se puede realizar el reconocimiento por voz");
-  }
-  else {
-    recon_allow = true;
-    recognition = new webkitSpeechRecognition();
-    recognition.continuous = true;
-
-    recognition.onstart = function(event) {
-      recognizing = true;
-    }
-
-    recognition.onresult = function(event) {
-      for (var i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-            captando = event.results[i][0].transcript.toLowerCase().replace(/\s/g, '');
-          if (captando == "derecha".toLowerCase()){
-              console.log("derecha");
-            camera.translateX(-125);
-            renderer.render(scene, camera);
-          }
-          else if (captando == "izquierda".toLowerCase()){
-              console.log("izquierda");
-            camera.translateX(125);
-            renderer.render(scene, camera);
-          }
-        }
-      }
-    }
-
-    recognition.onend = function(event) {
-      recognizing = false;
-    }
-    
-    recognition.lang = "es-ES";
-    recognition.start();
-  }
 }
 
 THREE.Matrix4.prototype.setFromArray = function(m) {
