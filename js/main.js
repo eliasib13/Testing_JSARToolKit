@@ -158,7 +158,7 @@ function cargar_escena(){
                 if (event.results[i].isFinal) {
                     captando = event.results[i][0].transcript.toLowerCase().replace(/\s/g, '');
                     if (captando == "derecha".toLowerCase()){
-                        window.alert("derecha");
+                        // window.alert("derecha");
                         mov = 90;  
                         derecha = true;
                         if (izquierda) {
@@ -173,7 +173,7 @@ function cargar_escena(){
                         }
                     }
                     else if (captando == "izquierda".toLowerCase()){
-                        window.alert("izquierda");
+                        // window.alert("izquierda");
                         mov = -90;
                         izquierda = true;
                         if (derecha) {
